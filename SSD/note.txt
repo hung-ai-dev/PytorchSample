@@ -1,0 +1,1 @@
+data dir, batches, shuffle, workers: modify in data/config.py
