@@ -9,15 +9,16 @@ class Segnet(nn.Module):
         input: 256x256
         output: cx256x256
     """
+
     def __init__(self, n_class):
-        def conv_bn(in_c, out_c, stride = 1):
+        def conv_bn(in_c, out_c, stride=1):
             return nn.Sequential(
                 nn.Conv2d(in_c, out_c, 3, stride, 1, bias=False),
                 nn.BatchNorm2d(out_c),
                 nn.ReLU(inplace=True)
             )
-        
-        def conv_bn_dw(in_c, out_c, stride = 1):
+
+        def conv_bn_dw(in_c, out_c, stride=1):
             return nn.Sequential(
                 nn.Conv2d(in_c, in_c, 3, stride, 1, groups=in_c, bias=False),
                 nn.BatchNorm2d(in_c),
@@ -27,19 +28,20 @@ class Segnet(nn.Module):
                 nn.ReLU(inplace=True)
             )
 
-        def deconv_bn(in_c, out_c, stride = 1):
+        def deconv_bn(in_c, out_c, stride=1):
             return nn.Sequential(
                 nn.ConvTranspose2d(in_c, out_c, 3, stride, 1, bias=False),
                 nn.BatchNorm2d(out_c),
                 nn.ReLU(inplace=True)
             )
 
-        def deconv_bn_dw(in_c, out_c, stride = 1):
+        def deconv_bn_dw(in_c, out_c, stride=1):
             return nn.Sequential(
                 nn.ConvTranspose2d(in_c, out_c, 1, 1, 0, bias=False),
                 nn.BatchNorm2d(out_c),
                 nn.ReLU(inplace=True),
-                nn.ConvTranspose2d(out_c, out_c, 3, stride, 1, groups=out_c, bias=False),
+                nn.ConvTranspose2d(out_c, out_c, 3, stride,
+                                   1, groups=out_c, bias=False),
                 nn.BatchNorm2d(out_c),
                 nn.ReLU(inplace=True)
             )
@@ -48,17 +50,15 @@ class Segnet(nn.Module):
         self.encoder = []
         self.decoder = []
 
-        encode1 = conv_bn(3, 32, 2),
-        encode2 = conv_bn_dw(32, 64, 1),
-        encode3 = conv_bn_dw(64, 128, 2),
-        encode4 = conv_bn_dw(128, 128, 1),
-        encode5 = conv_bn_dw(128, 256, 2),
-        encode6 = conv_bn_dw(256, 256, 1),
-        encode7 = conv_bn_dw(256, 512, 2),
-        encode8 = conv_bn_dw(512, 512, 1),
-        encode9 = conv_bn_dw(512, 512, 1),
-        self.encoder.extend([encode1, encode2, encode3, encode4, encode5, encode6, encode7, encode8, encode9])
-        self.encoder = nn.ModuleList(self.encoder)
+        self.encode1 = conv_bn(3, 32, 2),
+        self.encode2 = conv_bn_dw(32, 64, 1),
+        self.encode3 = conv_bn_dw(64, 128, 2),
+        self.encode4 = conv_bn_dw(128, 128, 1),
+        self.encode5 = conv_bn_dw(128, 256, 2),
+        self.encode6 = conv_bn_dw(256, 256, 1),
+        self.encode7 = conv_bn_dw(256, 512, 2),
+        self.encode8 = conv_bn_dw(512, 512, 1),
+        self.encode9 = conv_bn_dw(512, 512, 1),
 
         self.decode9 = deconv_bn_dw(512, 512, 1),
         self.decode8 = deconv_bn_dw(512, 512, 1),
@@ -70,11 +70,10 @@ class Segnet(nn.Module):
         self.decode2 = deconv_bn_dw(64, 32, 1),
         self.decode1 = deconv_bn(32, n_class, 2)
         # self.decoder.extend([decode1, decode2, decode3, decode4, decode5, decode6, decode7, decode8, decode9])
-    
+
     def forward(self, x):
-        for encode in self.encoder:
-            print(encode)
-            x = encode(x) 
+        x = self.encode9(self.encode8(self.encode7(self.encode6(
+            self.encode5(self.encode4(self.encode3(self.encode2(self.encode1(x)))))))))
         h_in, w_in = s.size()
         h_out, w_out = h_in * 2, w_in * 2
 
