@@ -91,11 +91,7 @@ def main():
     # 3. optimizer
 
     optim = torch.optim.SGD(
-        [
-            {'params': model.parameters()},
-            {'params': model.parameters(),
-             'lr': cfg['lr'] * 2, 'weight_decay': 0},
-        ],
+        model.parameters(),
         lr=cfg['lr'],
         momentum=cfg['momentum'],
         weight_decay=cfg['weight_decay'])

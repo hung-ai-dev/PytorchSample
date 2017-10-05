@@ -47,18 +47,21 @@ class Segnet(nn.Module):
             )
 
         super().__init__()
-        self.encoder = []
+        r = []
         self.decoder = []
 
-        self.encode1 = conv_bn(3, 32, 2),
-        self.encode2 = conv_bn_dw(32, 64, 1),
-        self.encode3 = conv_bn_dw(64, 128, 2),
-        self.encode4 = conv_bn_dw(128, 128, 1),
-        self.encode5 = conv_bn_dw(128, 256, 2),
-        self.encode6 = conv_bn_dw(256, 256, 1),
-        self.encode7 = conv_bn_dw(256, 512, 2),
-        self.encode8 = conv_bn_dw(512, 512, 1),
-        self.encode9 = conv_bn_dw(512, 512, 1),
+        self.encode = nn.Sequential(
+            conv_bn(3, 32, 2),
+            conv_bn_dw(32, 64, 1),
+            conv_bn_dw(64, 128, 2),
+            conv_bn_dw(128, 128, 1),
+            conv_bn_dw(128, 256, 2),
+            conv_bn_dw(256, 256, 1),
+            conv_bn_dw(256, 512, 2),
+            conv_bn_dw(512, 512, 1),
+            conv_bn_dw(512, 512, 1),
+        )
+       
 
         self.decode9 = deconv_bn_dw(512, 512, 1),
         self.decode8 = deconv_bn_dw(512, 512, 1),
@@ -72,8 +75,8 @@ class Segnet(nn.Module):
         # self.decoder.extend([decode1, decode2, decode3, decode4, decode5, decode6, decode7, decode8, decode9])
 
     def forward(self, x):
-        x = self.encode9(self.encode8(self.encode7(self.encode6(
-            self.encode5(self.encode4(self.encode3(self.encode2(self.encode1(x)))))))))
+        x = self.encode(x)
+
         h_in, w_in = s.size()
         h_out, w_out = h_in * 2, w_in * 2
 
