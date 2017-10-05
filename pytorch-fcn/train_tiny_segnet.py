@@ -76,7 +76,7 @@ def main():
 
     # 2. model
 
-    model = torchfcn.models.segnet(n_class=21)
+    model = torchfcn.models.Segnet(n_class=21)
     start_epoch = 0
     start_iteration = 0
     if resume:
@@ -93,7 +93,7 @@ def main():
     optim = torch.optim.SGD(
         [
             {'params': model.parameters()},
-            {'params': model.parameters()},
+            {'params': model.parameters(),
              'lr': cfg['lr'] * 2, 'weight_decay': 0},
         ],
         lr=cfg['lr'],
@@ -114,7 +114,7 @@ def main():
     )
     trainer.epoch = start_epoch
     trainer.iteration = start_iteration
-    trainer.train()
+    # trainer.train()
 
 
 if __name__ == '__main__':

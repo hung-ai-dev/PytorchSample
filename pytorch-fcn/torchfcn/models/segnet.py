@@ -4,7 +4,7 @@ import fcn
 import torch.nn as nn
 
 
-class Segmentation(nn.Module):
+class Segnet(nn.Module):
     """
         input: 256x256
         output: cx256x256
